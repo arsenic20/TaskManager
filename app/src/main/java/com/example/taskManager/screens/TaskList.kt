@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,6 +27,9 @@ fun TaskList(onNavigateToDetails: (TaskEntity) -> Unit) {
     val viewModel = hiltViewModel<TasksScreenViewModel>()
     val taskData: State<List<TaskEntity>?> = viewModel.tasks.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.refreshTasks()  // Ensure data reloads on screen launch
+    }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -57,10 +60,12 @@ fun TaskList(onNavigateToDetails: (TaskEntity) -> Unit) {
                 }
             } ?: run {
                 // Optional: Handle the case where there's no data
-                Text(text = viewModel.errorMessage.value ?: stringResource(R.string.no_task_found),
+                Text(
+                    text = viewModel.errorMessage.value ?: stringResource(R.string.no_task_found),
                     style = MaterialTheme.typography.titleLarge,
                     fontSize = 30.sp,
-                    modifier = Modifier.align(Alignment.Center))
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
     }

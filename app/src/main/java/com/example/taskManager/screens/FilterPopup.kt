@@ -15,9 +15,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.taskManager.viewModel.TasksScreenViewModel
 
 @Composable
 fun FilterPopup(onDismiss: () -> Unit) {
+    val viewModel = hiltViewModel<TasksScreenViewModel>()
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier.padding(16.dp),
@@ -33,7 +37,10 @@ fun FilterPopup(onDismiss: () -> Unit) {
                         text = filter,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { /* Handle filter selection */ onDismiss() }
+                            .clickable {
+                                viewModel.setFilter(filter)
+                                /* Handle filter selection */ onDismiss()
+                            }
                             .padding(8.dp)
                     )
                 }
