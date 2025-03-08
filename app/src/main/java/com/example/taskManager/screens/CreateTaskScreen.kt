@@ -1,5 +1,6 @@
 package com.example.taskManager.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,15 +8,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -26,10 +33,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.taskManager.viewModel.CreateTaskViewModel
-import com.example.taskManager.viewModel.TasksScreenViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -41,16 +48,35 @@ fun CreateTaskScreen(
     onCancel: () -> Unit,
     onCreateTask: () -> Unit
 ) {
+    val context = LocalContext.current
     val title by viewModel.title.collectAsState()
     val description by viewModel.description.collectAsState()
     val priority by viewModel.priority.collectAsState()
     val dueDate by viewModel.dueDate.collectAsState()
-
-    var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
+    var showDatePicker by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
+    val priorityOptions = listOf("Low", "Medium", "High")
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Create Task") }) }
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        "Create Task",
+                        color = Color.Black
+                    )
+                },
+                colors = TopAppBarColors(
+                    Color.Gray,
+                    Color.Gray,
+                    Color.Gray,
+                    Color.Gray,
+                    Color.Gray
+                ),
+
+                )
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -73,20 +99,51 @@ fun CreateTaskScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            OutlinedTextField(
-                value = priority,
-                onValueChange = { viewModel.setPriority(it) },
-                label = { Text("Priority (Low, Medium, High)") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                OutlinedTextField(
+                    value = priority,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Priority") },
+                    trailingIcon = {
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = "Dropdown")
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    priorityOptions.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option) },
+                            onClick = {
+                                viewModel.setPriority(option)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Due Date: ${SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(dueDate)}")
+                Text(
+                    "Due Date: ${
+                        SimpleDateFormat(
+                            "dd/MM/yyyy",
+                            Locale.getDefault()
+                        ).format(dueDate)
+                    }"
+                )
                 Button(onClick = { showDatePicker = true }) {
                     Text("Pick Date")
                 }
@@ -104,7 +161,13 @@ fun CreateTaskScreen(
                     Text("Cancel")
                 }
                 Button(onClick = {
-                    viewModel.insertTask { onCreateTask() }
+
+                    if (title.isBlank() || priority.isBlank() || description.isBlank()) {
+                        Toast.makeText(context, "Please fill all fields ", Toast.LENGTH_SHORT)
+                            .show()
+                    } else {
+                        viewModel.insertTask { onCreateTask() }
+                    }
                 }) {
                     Text("Submit")
                 }
@@ -112,7 +175,8 @@ fun CreateTaskScreen(
         }
     }
 
-    // Material 3 DatePicker Dialog
+
+
     if (showDatePicker) {
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
@@ -131,5 +195,7 @@ fun CreateTaskScreen(
             DatePicker(state = datePickerState)
         }
     }
+
+
 }
 

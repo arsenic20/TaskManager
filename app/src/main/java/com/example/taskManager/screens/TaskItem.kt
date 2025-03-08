@@ -1,5 +1,6 @@
 package com.example.taskManager.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.taskManager.model.TaskEntity
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 
 @Composable
@@ -32,15 +35,55 @@ fun TaskItem(
         shape = RoundedCornerShape(8.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = task.title, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text(text = task.description ?: "No description", fontSize = 14.sp, color = Color.Gray)
+            Text(
+                text = task.title,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 5.dp)
+            )
+            Text(
+                text = task.description ?: "No description",
+                fontSize = 14.sp,
+                color = Color.Gray,
+                modifier = Modifier.padding(5.dp)
+            )
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 5.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Due: ${task.dueDate}", fontSize = 12.sp, color = Color.Red)
-                Text(text = "Priority: ${task.priority}", fontSize = 12.sp, color = Color.Blue)
-                Text(text = "Status: ${task.status}", fontSize = 12.sp, color = Color.Green)
+                Text(
+                    text = "Due: ${
+                        SimpleDateFormat(
+                            "dd/MM/yyyy",
+                            Locale.getDefault()
+                        ).format(task.dueDate)
+                    }",
+                    fontSize = 12.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(start = 5.dp, 10.dp)
+                )
+                Text(
+                    text = "Priority: ${task.priority}",
+                    fontSize = 12.sp,
+                    color = Color.Black,
+                    modifier = Modifier.padding(start = 5.dp, 10.dp)
+                )
+                Text(
+                    text = "Status: ${task.status}",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (task.status == "Pending") Color.Red else Color(0xFF33623D),
+                    modifier = Modifier
+                        .background(
+                            color = if (task.status == "Pending") Color(0xFFFFCDD2) else Color(
+                                0xFFB0D6B8
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(8.dp)
+                )
             }
         }
     }

@@ -18,6 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,7 +42,7 @@ fun TaskDetailScreen(
     onTaskComplete: () -> Unit,
     onTaskDeleted: () -> Unit
 ) {
-   val viewModel: TaskDetailViewModel = hiltViewModel()
+    val viewModel: TaskDetailViewModel = hiltViewModel()
     val currentTask by viewModel.task.collectAsState()
 
     LaunchedEffect(task) {
@@ -49,7 +50,23 @@ fun TaskDetailScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Task Details") }) }
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        "Task Details",
+                        color = Color.Black
+                    )
+                },
+                colors = TopAppBarColors(
+                    Color.Gray,
+                    Color.Gray,
+                    Color.Gray,
+                    Color.Gray,
+                    Color.Gray
+                ),
+            )
+        }
     ) { paddingValues ->
         currentTask?.let { task ->
             Column(
@@ -69,16 +86,40 @@ fun TaskDetailScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(text = task.title, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                        // Title & Description
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                text = task.title,
+                                fontSize = 22.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(5.dp)
+                            )
+                            Text(
+                                text = task.description ?: "No Description",
+                                fontSize = 16.sp,
+                                color = Color.Gray,
+                                modifier = Modifier.padding(5.dp)
+                            )
+                        }
+
+                        // Due Date (Now Below Title & Description)
                         Text(
-                            text = task.description ?: "No Description",
-                            fontSize = 16.sp,
-                            color = Color.Gray
+                            text = "Due: ${
+                                SimpleDateFormat(
+                                    "dd/MM/yyyy",
+                                    Locale.getDefault()
+                                ).format(task.dueDate)
+                            }",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 8.dp, start = 5.dp)
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Status Badge (Pending = Red, Completed = Green)
+                        // Status Badge & Priority
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -87,23 +128,38 @@ fun TaskDetailScreen(
                                 text = "Status: ${task.status}",
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (task.status == "Pending") Color.Red else Color.Green,
+                                color = if (task.status == "Pending") Color.Red else Color(
+                                    0xFF33623D
+                                ),
                                 modifier = Modifier
                                     .background(
-                                        color = if (task.status == "Pending") Color(0xFFFFCDD2) else Color(0xFFC8E6C9),
+                                        color = if (task.status == "Pending") Color(0xFFFFCDD2) else Color(
+                                            0xFFB0D6B8
+                                        ),
                                         shape = RoundedCornerShape(8.dp)
                                     )
                                     .padding(8.dp)
                             )
-
                             Text(
-                                text = "Due: ${SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(task.dueDate)}",
+                                text = "Priority: ${task.priority}",
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = if (task.priority == "High") Color.Red
+                                else if (task.priority == "Medium") Color(0xFF002D5D)
+                                else Color(0xFF33623D),
+                                modifier = Modifier
+                                    .background(
+                                        color = if (task.priority == "High") Color(0xFFFFCDD2)
+                                        else if (task.priority == "Medium") Color(0xFFCBE4FF)
+                                        else Color(0xFFB0D6B8),
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .padding(8.dp)
                             )
                         }
                     }
                 }
+
 
                 Spacer(modifier = Modifier.weight(1f)) // Pushes buttons to bottom
 
@@ -125,7 +181,7 @@ fun TaskDetailScreen(
                     // Delete Button
                     Button(
                         onClick = { viewModel.deleteTask(onTaskDeleted) },
-                        colors = ButtonDefaults.buttonColors(Color.Red)
+                        colors = ButtonDefaults.buttonColors(Color.Black)
                     ) {
                         Text("Delete")
                     }

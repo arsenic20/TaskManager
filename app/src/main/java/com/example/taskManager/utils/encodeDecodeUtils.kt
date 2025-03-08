@@ -3,7 +3,6 @@ package com.example.taskManager.utils
 import android.util.Base64
 import com.example.taskManager.model.TaskEntity
 import com.google.gson.Gson
-import okhttp3.internal.concurrent.Task
 
 fun serializeTaskBase64(task: TaskEntity): String {
     val json = Gson().toJson(task)
