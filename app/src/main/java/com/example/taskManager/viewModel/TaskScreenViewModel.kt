@@ -74,7 +74,7 @@ class TasksScreenViewModel @Inject constructor(
             }
 
             "Priority (Low-High)" -> tasksList.sortedBy { priorityOrder[it.priority] ?: 0 }
-            "Title" -> tasksList.sortedBy { it.title }
+            "Title" -> tasksList.sortedBy { it.title.lowercase() }
             else -> tasksList
         }
         return sortedData
