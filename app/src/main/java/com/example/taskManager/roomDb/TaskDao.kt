@@ -19,21 +19,6 @@ interface TaskDao {
     @Query("UPDATE tasks SET status = :status WHERE id = :taskId")
     suspend fun updateTaskStatus(taskId: Int, status: String)
 
-    @Query("SELECT * FROM tasks ORDER BY title ASC")
-    fun getTasksSortedByName(): Flow<List<TaskEntity>>
-
-    @Query("SELECT * FROM tasks ORDER BY dueDate DESC")
-    fun getTasksSortedByNewestDate(): Flow<List<TaskEntity>>
-
-    @Query("SELECT * FROM tasks ORDER BY dueDate ASC")
-    fun getTasksSortedByOldestDate(): Flow<List<TaskEntity>>
-
-    @Query("SELECT * FROM tasks ORDER BY priority DESC")
-    fun getTasksSortedByPriorityHighToLow(): Flow<List<TaskEntity>>
-
-    @Query("SELECT * FROM tasks ORDER BY priority ASC")
-    fun getTasksSortedByPriorityLowToHigh(): Flow<List<TaskEntity>>
-
     @Query("SELECT * FROM tasks")
     fun getAllTasks(): Flow<List<TaskEntity>>
 
